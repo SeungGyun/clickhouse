@@ -1,0 +1,144 @@
+version: '3.7'
+
+services:
+  # ✅ ClickHouse 노드 1
+  ch_server01:
+    image: clickhouse/clickhouse-server
+    container_name: ch_server01
+    hostname: ch_server01
+    ports:
+      - "18123:8123"
+      - "19000:9000"
+    user: "101:101"
+    volumes:
+      - clickhouse_data_01:/var/lib/clickhouse
+      - clickhouse_logs_01:/var/log/clickhouse-server
+      - ./config.xml:/etc/clickhouse-server/config.xml
+    networks:
+      clickhouse-network:
+        ipv4_address: 172.23.0.13
+    restart: unless-stopped
+    environment:
+      - REPLICA=01
+
+  # ✅ ClickHouse 노드 2
+  ch_server02:
+    image: clickhouse/clickhouse-server
+    container_name: ch_server02
+    hostname: ch_server02
+    ports:
+      - "18124:8123"
+      - "19001:9000"
+    user: "101:101"
+    volumes:
+      - clickhouse_data_02:/var/lib/clickhouse
+      - clickhouse_logs_02:/var/log/clickhouse-server
+      - ./config.xml:/etc/clickhouse-server/config.xml
+    networks:
+      clickhouse-network:
+        ipv4_address: 172.23.0.14
+    restart: unless-stopped
+    environment:
+      - REPLICA=02
+
+  # ✅ ClickHouse 노드 3
+  ch_server03:
+    image: clickhouse/clickhouse-server
+    container_name: ch_server03
+    hostname: ch_server03
+    ports:
+      - "18125:8123"
+      - "19002:9000"
+    user: "101:101"
+    volumes:
+      - clickhouse_data_03:/var/lib/clickhouse
+      - clickhouse_logs_03:/var/log/clickhouse-server
+      - ./config.xml:/etc/clickhouse-server/config.xml
+    networks:
+      clickhouse-network:
+        ipv4_address: 172.23.0.15
+    restart: unless-stopped
+    environment:
+      - REPLICA=03
+  # ✅ ClickHouse 노드 4
+  ch_server04:
+    image: clickhouse/clickhouse-server
+    container_name: ch_server04
+    hostname: ch_server04
+    ports:
+      - "18126:8123"
+      - "19003:9000"
+    user: "101:101"
+    volumes:
+      - clickhouse_data_04:/var/lib/clickhouse
+      - clickhouse_logs_04:/var/log/clickhouse-server
+      - ./config.xml:/etc/clickhouse-server/config.xml
+    networks:
+      clickhouse-network:
+        ipv4_address: 172.23.0.16
+    restart: unless-stopped
+    environment:
+      - REPLICA=04
+
+  # ✅ ClickHouse Client
+  ch_client:
+    image: yandex/clickhouse-client
+    entrypoint:
+      - /bin/sleep
+    command:
+      - infinity
+    networks:
+      clickhouse-network:
+
+  # ✅ Zookeeper (클러스터 관리)
+  zookeeper:
+    image: zookeeper:3.7
+    container_name: zookeeper
+    hostname: zookeeper
+    restart: unless-stopped
+    networks:
+      clickhouse-network:
+        ipv4_address: 172.23.0.10
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/data
+      - zookeeper_logs:/datalog
+
+  # ✅ Tabix Web UI
+  tabix:
+    image: spoonest/clickhouse-tabix-web-client
+    ports:
+      - "18090:80"
+    networks:
+      clickhouse-network:
+        ipv4_address: 172.23.0.20
+
+networks:
+  clickhouse-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/24
+
+volumes:
+  clickhouse_data_01:
+    driver: local
+  clickhouse_logs_01:
+    driver: local
+  clickhouse_data_02:
+    driver: local
+  clickhouse_logs_02:
+    driver: local
+  clickhouse_data_03:
+    driver: local
+  clickhouse_logs_03:
+    driver: local
+  clickhouse_data_04:
+    driver: local
+  clickhouse_logs_04:
+    driver: local
+  zookeeper_data:
+    driver: local
+  zookeeper_logs:
+    driver: local
