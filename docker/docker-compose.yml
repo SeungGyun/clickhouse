@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  ch_server:
+    image: clickhouse/clickhouse-server
+    ports:
+      - "8123:8123"
+    user: "101:101"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse  # ✅ Docker 볼륨으로 변경
+      - clickhouse_logs:/var/log/clickhouse-server  # ✅ 로그도 Docker 볼륨으로 변경
+    networks:
+      - ch_ntw
+    restart: unless-stopped  # ✅ 컨테이너가 자동 재시작되도록 설정
+
+  ch_client:
+    image: yandex/clickhouse-client
+    entrypoint:
+      - /bin/sleep
+    command:
+      - infinity
+    networks:
+      - ch_ntw
+
+  tabix:
+    image: spoonest/clickhouse-tabix-web-client
+    ports:
+      - "8090:80"
+    networks:
+      - ch_ntw
+
+networks:
+  ch_ntw:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.222.1.0/24
+
+volumes:
+  clickhouse_data:
+    driver: local  # ✅ Windows 파일 시스템과 충돌 방지
+  clickhouse_logs:
+    driver: local  # ✅ 로그 파일 저장을 위한 볼륨 추가
