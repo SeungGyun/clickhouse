@@ -38,7 +38,7 @@ ORDER BY log_id;
 
 DROP table mv_parsed_logs;
 
-CREATE MATERIALIZED VIEW mv_parsed_logs TO parsed_logs AS
+CREATE MATERIALIZED VIEW default.mv_parsed_logs TO default.parsed_logs AS
 SELECT
     JSONExtractString(raw_data, 'log_id') AS log_id,
     JSONExtractUInt(raw_data, 'app_id') AS app_id,
