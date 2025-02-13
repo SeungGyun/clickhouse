@@ -5,7 +5,7 @@ CREATE TABLE default.kafka_raw_logs
 SETTINGS kafka_broker_list = 'localhost1:9092,localhost2:9092',
          kafka_topic_list = 'test',
          kafka_group_name = 'clickhouse_consumer',
-         kafka_format = 'JSONEachRow',
+         kafka_format = 'String',
          kafka_num_consumers = 3,  -- 병렬 소비자 3개
          kafka_handle_error_mode = 'stream';
 
